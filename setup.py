@@ -44,8 +44,36 @@ class install_lib(_install_lib):
         self.run_command('compile_translations')
         _install_lib.run(self)
 
+def get_version():
+    import glob
+    import re
+    import os
+
+    version = None
+    for d in glob.glob('*'):
+        if not os.path.isdir(d):
+            continue
+        module_file = os.path.join(d, '__init__.py')
+        if not os.path.exists(module_file):
+            continue
+        for v in re.findall("""__version__ *= *['"](.*)['"]""",
+                open(module_file).read()):
+            assert version is None
+            version = v
+        if version:
+            break
+    assert version is not None
+    if os.path.exists('.git'):
+        import subprocess
+        p = subprocess.Popen(['git','log','--oneline','HEAD~..'],
+                stdout=subprocess.PIPE)
+        result = p.communicate()[0]
+        version += '-' + result.split()[0]
+    return version
+
+
 setup(name="entrouvert",
-      version=1.0,
+      version=get_version(),
       license="AGPLv3 or later",
       description="Entr'ouvert tools",
       url="http://dev.entrouvert.org/projects/python-entrouvert/",
