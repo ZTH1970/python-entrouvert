@@ -87,7 +87,7 @@ setup(name="entrouvert",
               ]
       },
       packages=find_packages(),
-      scripts=(),
+      scripts=('tools/check-git2python-packaging.sh',),
       install_requires=[],
       setup_requires=['nose>=1.0'],
       dependency_links=[],
