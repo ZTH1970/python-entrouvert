@@ -25,7 +25,7 @@ class compile_translations(Command):
         import sys
         from django.core.management.commands.compilemessages import \
             compile_messages
-        for path in []:
+        for path in ['entrouvert/djommon/']:
             if path.endswith('.py'):
                 continue
             curdir = os.getcwd()
