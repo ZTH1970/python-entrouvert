@@ -1,0 +1,27 @@
+# djommon french translations
+# Copyright (C) 2013 Entr'ouvert
+# This file is distributed under the same license as the PACKAGE package.
+# Benjamin Dauvergne <bdauvergne@entrouvert.com, 2013.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: djommon 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2013-04-25 18:01+0200\n"
+"PO-Revision-Date: 2013-04-25 18:03+0200\n"
+"Last-Translator: Benjamin Dauvergne <bdauvergne@entrouvert.com>\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1)\n"
+
+#: templatetags/djommon.py:32
+msgctxt "list formation"
+msgid ", "
+msgstr ""
+
+#: templatetags/djommon.py:34
+msgctxt "list formation"
+msgid "{first_part} and {last_part}"
+msgstr "{first_part} et {last_part}"
