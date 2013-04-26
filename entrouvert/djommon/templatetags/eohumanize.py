@@ -11,8 +11,7 @@ def widowless(value):
     '''Replace normal spaces by non-breakable spaces'''
     bits = escape(value).rsplit(' ', 1)
     try:
-        widowless = u'&nbsp;'.join(bits)
-        return mark_safe(widowless)
+        return mark_safe(u'&nbsp;'.join(bits))
     except:
         return value
 register.filter(widowless)
