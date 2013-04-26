@@ -48,6 +48,7 @@ def get_version():
     import glob
     import re
     import os
+    from datetime import datetime
 
     version = None
     for d in glob.glob('*'):
@@ -68,7 +69,7 @@ def get_version():
         p = subprocess.Popen(['git','log','--oneline','HEAD~..'],
                 stdout=subprocess.PIPE)
         result = p.communicate()[0]
-        version += '-' + result.split()[0]
+        version += '.%s.%s' % (datetime.today().strftime('%Y%m%d'), result.split()[0])
     return version
 
 
