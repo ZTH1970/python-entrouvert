@@ -1,0 +1,7 @@
+MANIFEST
+*.pyc
+*.pyo
+*.db
+.*.swp
+dist/
+nosetests.xml
