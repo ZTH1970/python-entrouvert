@@ -5,6 +5,7 @@ import pkg_resources
 class VersionMiddleware(object):
     ENTROUVERT_PACKAGES = [
             'wcs',
+            'wcs_au_quotidien',
             'authentic2',
             'polynum',
             'appli_project',
