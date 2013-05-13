@@ -30,11 +30,12 @@ class VersionMiddleware(object):
             return [json.dumps(packages_version)]
         return self.application(environ, start_response)
 
-    def get_packages_version(self):
+    @classmethod
+    def get_packages_version(cls):
         packages_version = {}
         for distribution in tuple(pkg_resources.WorkingSet()):
             project_name = distribution.project_name
             version = distribution.version
-            if project_name in self.ENTROUVERT_PACKAGES:
+            if project_name in cls.ENTROUVERT_PACKAGES:
                 packages_version[project_name] = version
         return packages_version
