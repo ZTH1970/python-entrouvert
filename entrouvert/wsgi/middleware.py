@@ -12,6 +12,7 @@ class VersionMiddleware(object):
             'passerelle',
             'docbow',
             'compte_agglo_montpellier',
+            'entrouvert',
             'nose',
     ]
     VERSION = 1
