@@ -10,5 +10,5 @@ class VersionMiddleware:
         if request.method == 'GET' and request.path == '/__version__':
             packages_version = middleware.VersionMiddleware.get_packages_version()
             return HttpResponse(json.dumps(packages_version),
-                    content_type='text/json')
+                    content_type='application/json')
         return None

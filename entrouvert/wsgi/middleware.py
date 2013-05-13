@@ -26,7 +26,7 @@ class VersionMiddleware(object):
         method = environ.get('REQUEST_METHOD', 'GET')
         if method == 'GET' and path == '/__version__':
             packages_version = self.get_packages_version()
-            start_response('200 Ok', [('content-type', 'text/json')])
+            start_response('200 Ok', [('content-type', 'application/json')])
             return [json.dumps(packages_version)]
         return self.application(environ, start_response)
 
