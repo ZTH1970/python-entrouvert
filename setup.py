@@ -8,7 +8,6 @@ from setuptools.command.install_lib import install_lib as _install_lib
 from distutils.command.build import build as _build
 from distutils.command.sdist import sdist  as _sdist
 from distutils.cmd import Command
-import glob
 
 class compile_translations(Command):
     description = 'compile message catalogs to MO files via django compilemessages'
@@ -48,7 +47,6 @@ def get_version():
     import glob
     import re
     import os
-    from datetime import datetime
 
     version = None
     for d in glob.glob('*'):
@@ -66,10 +64,13 @@ def get_version():
     assert version is not None
     if os.path.exists('.git'):
         import subprocess
-        p = subprocess.Popen(['git','log','--oneline','HEAD~..'],
+        p = subprocess.Popen(['git','describe'],
                 stdout=subprocess.PIPE)
         result = p.communicate()[0]
-        version += '.%s.%s' % (datetime.today().strftime('%Y%m%d'), result.split()[0])
+        assert p.returncode == 0, 'git returned non-zero'
+        new_version = result.split()[0]
+        assert new_version.split('-')[0] == version, '__version__ must match the last git annotated tag'
+        version = new_version.replace('-', '.')
     return version
 
 
