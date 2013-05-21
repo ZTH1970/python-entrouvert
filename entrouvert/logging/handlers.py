@@ -30,8 +30,6 @@ class SysLogHandler(logging.handlers.SysLogHandler):
             # Message is a string. Convert to bytes as required by RFC 5424
             if type(msg) is unicode:
                 msg = msg.encode('utf-8')
-                if codecs:
-                    msg = codecs.BOM_UTF8 + msg
             msg = prio + msg
             try:
                 if self.unixsocket:
