@@ -10,7 +10,7 @@ class SysLogHandler(logging.handlers.SysLogHandler):
 
     def __init__(self, *args, **kwargs):
         self.max_length = kwargs.pop('max_length', 70)
-        super(SysLogHandler, self).__init__(*args, **kwargs)
+        logging.handlers.SysLogHandler.__init__(self, *args, **kwargs)
 
     def emit(self, record):
         """
