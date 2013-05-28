@@ -6,6 +6,12 @@ except ImportError:
     codecs = None
 
 class SysLogHandler(logging.handlers.SysLogHandler):
+    max_length = 120
+
+    def __init__(self, *args, **kwargs):
+        self.max_length = kwargs.pop('max_length', 70)
+        super(SysLogHandler, self).__init__(*args, **kwargs)
+
     def emit(self, record):
         """
         Emit a record.
@@ -20,13 +26,12 @@ class SysLogHandler(logging.handlers.SysLogHandler):
         """
         prio = '<%d>' % self.encodePriority(self.facility,
                                             self.mapPriority(record.levelname))
-        max_length = 70
         i = 0
         while source_msg[i:]:
-            msg = source_msg[i:i+max_length] + '\000'
+            msg = source_msg[i:i+self.max_length] + '\000'
             if i:
                 msg = ' ' + msg
-            i += max_length
+            i += self.max_length
             # Message is a string. Convert to bytes as required by RFC 5424
             if type(msg) is unicode:
                 msg = msg.encode('utf-8')
