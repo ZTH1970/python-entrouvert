@@ -88,7 +88,6 @@ setup(name="entrouvert",
       scripts=('tools/check-git2python-packaging.sh',),
       install_requires=[],
       setup_requires=[
-          'nose>=0.11.4',
           'django>=1.4',
       ],
       dependency_links=[],
