@@ -90,6 +90,9 @@ setup(name="entrouvert",
       setup_requires=[
           'django>=1.4',
       ],
+      tests_require=[
+          'nose>=0.11.4',
+      ],
       dependency_links=[],
       cmdclass={'build': build, 'install_lib': install_lib,
           'compile_translations': compile_translations,
