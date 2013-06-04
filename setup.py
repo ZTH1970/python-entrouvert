@@ -84,14 +84,13 @@ setup(name="entrouvert",
       maintainer="Benjamin Dauvergne",
       maintainer_email="info@entrouvert.com",
       include_package_data=True,
-      package_data={
-          '': [
-              ]
-      },
       packages=find_packages(),
       scripts=('tools/check-git2python-packaging.sh',),
       install_requires=[],
-      setup_requires=['nose>=0.11.4'],
+      setup_requires=[
+          'nose>=0.11.4',
+          'django>=1.4',
+      ],
       dependency_links=[],
       cmdclass={'build': build, 'install_lib': install_lib,
           'compile_translations': compile_translations,
