@@ -74,7 +74,7 @@ def get_version():
     return version
 
 
-setup(name="entrouvert",
+setup(name="python-entrouvert",
       version=get_version(),
       license="AGPLv3 or later",
       description="Entr'ouvert tools",
