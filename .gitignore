@@ -3,5 +3,6 @@ MANIFEST
 *.pyo
 *.db
 .*.swp
+*.mo
 dist/
 nosetests.xml
