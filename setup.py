@@ -3,6 +3,8 @@
 ''' Setup script for python-entrouvert
 '''
 
+import sys
+
 from setuptools import setup, find_packages
 from setuptools.command.install_lib import install_lib as _install_lib
 from distutils.command.build import build as _build
@@ -22,15 +24,21 @@ class compile_translations(Command):
     def run(self):
         import os
         import sys
-        from django.core.management.commands.compilemessages import \
-            compile_messages
-        for path in ['entrouvert/djommon/']:
-            if path.endswith('.py'):
-                continue
-            curdir = os.getcwd()
-            os.chdir(os.path.realpath(path))
-            compile_messages(stderr=sys.stderr)
-            os.chdir(curdir)
+        try:
+            from django.core.management.commands.compilemessages import \
+                    compile_messages
+            for path in ['entrouvert/djommon/']:
+                if path.endswith('.py'):
+                    continue
+                curdir = os.getcwd()
+                os.chdir(os.path.realpath(path))
+                compile_messages(stderr=sys.stderr)
+                os.chdir(curdir)
+        except ImportError:
+            print
+            sys.stderr.write('!!! Please install Django >= 1.4 to build translations')
+            print
+            print
 
 class build(_build):
     sub_commands = [('compile_translations', None)] + _build.sub_commands
@@ -84,9 +92,6 @@ setup(name="python-entrouvert",
       packages=find_packages(),
       scripts=('tools/check-git2python-packaging.sh',),
       install_requires=[],
-      setup_requires=[
-          'django>=1.4',
-      ],
       tests_require=[
           'nose>=0.11.4',
       ],
