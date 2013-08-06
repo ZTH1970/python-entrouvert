@@ -92,6 +92,5 @@ setup(name="python-entrouvert",
       ],
       dependency_links=[],
       cmdclass={'build': build, 'install_lib': install_lib,
-          'compile_translations': compile_translations,
-          'sdist': sdist},
+          'compile_translations': compile_translations,},
 )
