@@ -35,9 +35,6 @@ class compile_translations(Command):
 class build(_build):
     sub_commands = [('compile_translations', None)] + _build.sub_commands
 
-class sdist(_sdist):
-    sub_commands = [('compile_translations', None)] + _sdist.sub_commands
-
 class install_lib(_install_lib):
     def run(self):
         self.run_command('compile_translations')
