@@ -11,6 +11,7 @@ class VersionMiddleware(object):
             'appli_project',
             'passerelle',
             'docbow',
+            'calebasse',
             'compte_agglo_montpellier',
             'entrouvert',
             'nose',
