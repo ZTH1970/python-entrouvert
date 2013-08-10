@@ -15,6 +15,9 @@ class VersionMiddleware(object):
             'compte_agglo_montpellier',
             'entrouvert',
             'nose',
+            'portail-citoyen',
+            'portail-citoyen-announces',
+            'compte-meyzieu',
     ]
     VERSION = 1
 
