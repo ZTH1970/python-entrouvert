@@ -13,7 +13,7 @@ class VersionMiddleware(object):
             'docbow',
             'calebasse',
             'compte-agglo-montpellier',
-            'entrouvert',
+            'python-entrouvert',
             'nose',
             'portail-citoyen',
             'portail-citoyen-announces',
