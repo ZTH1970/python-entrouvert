@@ -12,7 +12,7 @@ class VersionMiddleware(object):
             'passerelle',
             'docbow',
             'calebasse',
-            'compte_agglo_montpellier',
+            'compte-agglo-montpellier',
             'entrouvert',
             'nose',
             'portail-citoyen',
