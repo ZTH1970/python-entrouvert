@@ -70,7 +70,7 @@ def get_version():
     if os.path.exists('VERSION'):
         version_file = open('VERSION', 'r')
         version = version_file.read()
-        version.close()
+        version_file.close()
         return version
     for d in glob.glob('*'):
         if not os.path.isdir(d):
