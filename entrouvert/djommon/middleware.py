@@ -16,12 +16,12 @@ class VersionMiddleware:
 # copied from http://stackoverflow.com/questions/9294043/include-django-logged-user-in-django-traceback-error
 
 class UserInTracebackMiddleware(object):
-"""
-    Adds user details to request context during request processing, so that they
-    show up in the error emails. Add to settings.MIDDLEWARE_CLASSES and keep it
-    outermost(i.e. on top if possible). This allows it to catch exceptions in
-    other middlewares as well.
-"""
+    """
+        Adds user details to request context during request processing, so that they
+        show up in the error emails. Add to settings.MIDDLEWARE_CLASSES and keep it
+        outermost(i.e. on top if possible). This allows it to catch exceptions in
+        other middlewares as well.
+    """
 
     def process_exception(self, request, exception):
         """
