@@ -1,0 +1,52 @@
+# Django humantime french translations
+# Copyright (C) 2013 Entr'ouvert
+# This file is distributed under the same license as the PACKAGE package.
+# Benjamin Dauvergne <bdauvergne@entrouvert.com>, 2013
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: django-humantime 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2013-11-22 21:54+0100\n"
+"PO-Revision-Date: 2013-11-22 21:55+0100\n"
+"Last-Translator: Benjamin Dauvergne <bdauvergne@entrouvert.com>\n"
+"Language-Team: french <fr@li.org>\n"
+"Language: french\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: utils.py:17
+msgctxt "humantime"
+msgid "today at {0}"
+msgstr "aujourd'hui à {0}"
+
+#: utils.py:19
+msgctxt "humantime"
+msgid "today"
+msgstr "aujourd'hui"
+
+#: utils.py:22
+msgctxt "humantime"
+msgid "yesterday at {0}"
+msgstr "hier à {0}"
+
+#: utils.py:24
+msgctxt "humantime"
+msgid "yesterday"
+msgstr "hier"
+
+#: utils.py:28
+msgctxt "humantime"
+msgid "{0} day ago"
+msgid_plural "{0} days ago"
+msgstr[0] "il y a {0} jour"
+msgstr[1] "il y a {0} jours"
+
+#: utils.py:31
+msgctxt "humantime"
+msgid "more than {0} day ago"
+msgid_plural "more than {0} days ago"
+msgstr[0] "il y a plus de {0} jour"
+msgstr[1] "il y a plus de {0} jours"
