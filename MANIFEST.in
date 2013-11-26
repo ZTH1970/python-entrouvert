@@ -1,3 +1,4 @@
 include MANIFEST.in
 include VERSION
 recursive-include entrouvert/djommon/locale *.po *.mo
+recursive-include entrouvert/djommon/humantime/locale *.po *.mo
