@@ -28,7 +28,7 @@ class compile_translations(Command):
         try:
             from django.core.management.commands.compilemessages import \
                     compile_messages
-            for path in ['entrouvert/djommon/']:
+            for path in ['entrouvert/djommon/', 'entrouvert/djommon/humantime/']:
                 if path.endswith('.py'):
                     continue
                 curdir = os.getcwd()
