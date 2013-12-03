@@ -4,11 +4,11 @@ from django.utils.translation import npgettext, pgettext
 
 def datetime2human(dt, include_time=False, days_limit=7):
     '''Format a datetime object for human consumption'''
-    if isinstance(dt, datetime.date):
+    if isinstance(dt, datetime.datetime):
+        time = dt.strftime('%H:%M')
+    else:
         dt = datetime.datetime(year=dt.year, month=dt.month, day=dt.day)
         include_time = False
-    else:
-        time = dt.strftime('%H:%M')
     today = datetime.date.today()
     yesterday = today - datetime.timedelta(days=1)
     date = dt.date()
