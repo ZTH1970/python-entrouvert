@@ -1,6 +1,7 @@
 import datetime
 
-from django.utils.translation import npgettext, pgettext
+from django.utils.translation import pgettext
+from django.template.defaultfilters import date
 
 def datetime2human(dt, include_time=False, days_limit=7):
     '''Format a datetime object for human consumption'''
@@ -11,22 +12,19 @@ def datetime2human(dt, include_time=False, days_limit=7):
         include_time = False
     today = datetime.date.today()
     yesterday = today - datetime.timedelta(days=1)
-    date = dt.date()
-    if date == today:
+    subdate = dt.date()
+    if subdate == today:
         if include_time:
             return pgettext('humantime', 'today at {0}').format(time)
         else:
             return pgettext('humantime', 'today')
-    elif date == yesterday:
+    elif subdate == yesterday:
         if include_time:
             return pgettext('humantime', 'yesterday at {0}').format(time)
         else:
             return pgettext('humantime', 'yesterday')
     else:
-        delta = (today - date).days
-        if delta <= days_limit:
-            return npgettext('humantime', '{0} day ago', '{0} days ago',
-                    delta).format(delta)
+        if include_time:
+            return date(dt, 'SHORT_DATETIME_FORMAT')
         else:
-            return npgettext('humantime', 'more than {0} day ago', 'more than {0} days ago',
-                    days_limit).format(days_limit)
+            return date(dt, 'SHORT_DATE_FORMAT')
