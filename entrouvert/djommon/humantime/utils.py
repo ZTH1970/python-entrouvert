@@ -1,6 +1,7 @@
 import datetime
 
 from django.utils.translation import pgettext
+from django.utils.timezone import localtime, get_default_timezone
 from django.template.defaultfilters import date
 
 def datetime2human(dt, include_time=False, days_limit=7):
@@ -8,8 +9,10 @@ def datetime2human(dt, include_time=False, days_limit=7):
     if isinstance(dt, datetime.datetime):
         time = dt.strftime('%H:%M')
     else:
-        dt = datetime.datetime(year=dt.year, month=dt.month, day=dt.day)
+        dt = datetime.datetime(year=dt.year, month=dt.month, day=dt.day,
+                tzinfo=get_default_timezone())
         include_time = False
+    dt = localtime(dt)
     today = datetime.date.today()
     yesterday = today - datetime.timedelta(days=1)
     subdate = dt.date()
