@@ -1,0 +1,55 @@
+Multitenant
+-----------
+
+An application for making a Django application multitenant for Entr'ouvert
+custsomers.
+
+Install
+-------
+
+Set the tenant model:
+
+    TENANT_MODEL = 'multitenant.Tenant'
+
+Add the middlewares for multitenant, they must be first:
+
+    MIDDLEWARE_CLASSES = (
+        'tenant_schemas.middleware.TenantMiddleware',
+        'entrouvert.djommon.multitenant.middleware.EOTenantMiddleware',
+        ...
+    )
+
+Add the multitenant filesystem template loader:
+
+    TEMPLATE_LOADERS = (
+       'entrouvert.djommon.multitenant.template_loader.MultitenantFilesystemLoader'
+       ....
+    )
+
+Configure where the multitenant templates are located:
+
+
+    MULTITENANT_TEMPLATE_DIRS = ('/var/lib/my_project/templates/',)
+
+Define the shared application:
+
+
+    SHARED_APPS = (
+        'tenant_schemas',
+        'entrouvert.djommon.multitenant',
+    )
+
+Use multitenant database engine:
+
+    DATABASES = {
+        'default': {
+            'ENGINE': 'tenant_schemas.postgresql_backend',
+            'NAME': '<db_name>',
+        },
+    }
+
+Use multitenant south adapter:
+
+    SOUTH_DATABASE_ADAPTERS = {
+        'default': 'south.db.postgresql_psycopg2',
+    }
