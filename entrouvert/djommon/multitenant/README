@@ -2,7 +2,7 @@ Multitenant
 -----------
 
 An application for making a Django application multitenant for Entr'ouvert
-custsomers.
+customers.
 
 Install
 -------
@@ -37,7 +37,19 @@ Define the shared application:
     SHARED_APPS = (
         'tenant_schemas',
         'entrouvert.djommon.multitenant',
+        # those are needed for the public apps to work
+        # add also any application needed by the public app
+        'django.contrib.auth',
+        'django.contrib.contenttypes',
+        'django.contrib.sessions',
+        'django.contrib.messages',
+        'django.contrib.staticfiles',
+        'django.contrib.sites',
     )
+
+    TENANT_APPS = INSTALLED_APPS
+
+    INSTALLED_APPS += ('tenant_schemas', 'entrouvert.djommon.multitenant')
 
 Use multitenant database engine:
 
