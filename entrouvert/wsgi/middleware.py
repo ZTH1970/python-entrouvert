@@ -12,12 +12,13 @@ class VersionMiddleware(object):
             'passerelle',
             'docbow',
             'calebasse',
-            'compte-agglo-montpellier',
             'python-entrouvert',
             'nose',
             'portail-citoyen',
             'portail-citoyen-announces',
             'compte-meyzieu',
+            'compte-agglo-montpellier',
+            'compte-orleans',
     ]
     VERSION = 1
 
