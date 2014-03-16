@@ -3,7 +3,7 @@ import json
 
 from django.utils.translation import ugettext as _
 from django.db import models
-from django.core.exceptions import ImproperlyConfigured
+from django.core.exceptions import ImproperlyConfigured, ValidationError
 
 from tenant_schemas.models import TenantMixin
 
@@ -14,9 +14,12 @@ class Tenant(TenantMixin):
     created_on = models.DateField(auto_now_add=True, verbose_name=_('created on'))
     is_active = models.BooleanField(default=True, blank=True, verbose_name=_('active'))
 
-
     # default true, schema will be automatically created and synced when it is saved
     auto_create_schema = False
+
+    def __unicode__(self):
+        return u'%s' % self.schema_name
+
 
 class ClientSetting(models.Model):
     NAME_RE = re.compile(r'^[_A-Z][_A-Z0-9]*$')
@@ -35,12 +38,12 @@ class ClientSetting(models.Model):
 
     def clean(self):
         if not re.match(self.NAME_RE, self.name):
-            raise models.ValidationError('name must be an uppercase variable '
+            raise ValidationError('name must be an uppercase variable '
                     'name')
         try:
             json.loads(self.value)
         except ValueError:
-            raise models.ValidationError('invalid JSON document')
+            raise ValidationError('invalid JSON document')
         if self.name in dir(app_settings):
             raise ImproperlyConfigured('The setting %r cannot be overridden by tenants' % self.name)
 
