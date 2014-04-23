@@ -22,7 +22,7 @@ Add the middlewares for multitenant, they must be first:
 Add the multitenant filesystem template loader:
 
     TEMPLATE_LOADERS = (
-       'entrouvert.djommon.multitenant.template_loader.MultitenantFilesystemLoader'
+       'entrouvert.djommon.multitenant.template_loader.FilesystemLoader'
        ....
     )
 
