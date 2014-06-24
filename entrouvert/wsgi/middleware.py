@@ -40,7 +40,8 @@ class VersionMiddleware(object):
         path += quote(environ.get('SCRIPT_NAME', ''))
         path += quote(environ.get('PATH_INFO', ''))
         method = environ.get('REQUEST_METHOD', 'GET')
-        if method == 'GET' and path == '/__version__':
+        if method == 'GET' and (path == '/__version__' or
+                path == '/__version__/'):
             packages_version = self.get_packages_version()
             start_response('200 Ok', [('content-type', 'application/json')])
             return [json.dumps(packages_version)]
