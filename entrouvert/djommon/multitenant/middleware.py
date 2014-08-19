@@ -1,26 +1,79 @@
 import os
 import json
+import glob
 
 from django.conf import settings, UserSettingsHolder
-
-from tenant_schemas.middleware import TenantMiddleware
+from django.db import connection
+from django.http import Http404
+from django.contrib.contenttypes.models import ContentType
+from tenant_schemas.utils import get_tenant_model, remove_www_and_dev, get_public_schema_name
 
 SENTINEL = object()
 
-class EOTenantMiddleware(TenantMiddleware):
-    def __init__(self, *args, **kwargs):
-        self.wrapped = settings._wrapped
+class TenantNotFound(RuntimeError):
+    pass
+
+class TenantMiddleware(object):
+    """
+    This middleware should be placed at the very top of the middleware stack.
+    Selects the proper database schema using the request host. Can fail in
+    various ways which is better than corrupting or revealing data...
+    """
+    @classmethod
+    def base(cls):
+        return settings.TENANT_BASE
+
+    @classmethod
+    def hostname2schema(cls, hostname):
+        '''Convert hostname to PostgreSQL schema name'''
+        if hostname in getattr(settings, 'TENANT_MAPPING', {}):
+            return settings.TENANT_MAPPING[hostname]
+        return hostname.replace('.', '_').replace('-', '_')
+
+    @classmethod
+    def get_tenant_by_hostname(cls, hostname):
+        '''Retrieve a tenant object for this hostname'''
+        schema = cls.hostname2schema(hostname)
+        p = os.path.join(cls.base(), schema)
+        if not os.path.exists(p):
+            raise TenantNotFound
+        return get_tenant_model()(schema_name=schema, domain_url=hostname)
+
+    @classmethod
+    def get_tenants(cls):
+        self = cls()
+        for path in glob.glob(os.path.join(cls.base(), '*')):
+            hostname = os.path.basename(path)
+            yield get_tenant_model()(
+                    schema_name=self.hostname2schema(hostname),
+                    domain_url=hostname)
 
     def process_request(self, request):
-        super(EOTenantMiddleware, self).process_request(request)
-        override = UserSettingsHolder(self.wrapped)
-        for client_settings in request.tenant.clientsetting_set.all():
-            setattr(override, client_settings.name, client_settings.json)
-        settings._wrapped = override
+        # connection needs first to be at the public schema, as this is where the
+        # tenant informations are saved
+        connection.set_schema_to_public()
+        hostname_without_port = remove_www_and_dev(request.get_host().split(':')[0])
 
-    def process_response(self, request, response):
-        settings._wrapped = self.wrapped
-        return response
+        try:
+            request.tenant = self.get_tenant_by_hostname(hostname_without_port)
+        except TenantNotFound:
+            raise Http404
+        connection.set_tenant(request.tenant)
+
+        # content type can no longer be cached as public and tenant schemas have different
+        # models. if someone wants to change this, the cache needs to be separated between
+        # public and shared schemas. if this cache isn't cleared, this can cause permission
+        # problems. for example, on public, a particular model has id 14, but on the tenants
+        # it has the id 15. if 14 is cached instead of 15, the permissions for the wrong
+        # model will be fetched.
+        ContentType.objects.clear_cache()
+
+        # do we have a public-specific token?
+        if hasattr(settings, 'PUBLIC_SCHEMA_URLCONF') and request.tenant.schema_name == get_public_schema_name():
+            request.urlconf = settings.PUBLIC_SCHEMA_URLCONF
+
+
+
 
 class TenantSettingBaseMiddleware(object):
     '''Base middleware classe for loading settings based on tenants
