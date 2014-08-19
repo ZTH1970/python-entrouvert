@@ -12,8 +12,6 @@ from django.utils.encoding import force_bytes
 from django.utils._os import safe_join
 from django.db import connection
 
-from . import app_settings
-
 class CachedLoader(BaseLoader):
     is_usable = True
 
@@ -86,9 +84,9 @@ class FilesystemLoader(BaseLoader):
             return
         if not template_dirs:
             try:
-                template_dirs = app_settings.MULTITENANT_TEMPLATE_DIRS
+                template_dirs = settings.TENANT_TEMPLATE_DIRS
             except AttributeError:
-                raise ImproperlyConfigured('To use %s.%s you must define the MULTITENANT_TEMPLATE_DIRS' % (__name__, FilesystemLoader.__name__))
+                raise ImproperlyConfigured('To use %s.%s you must define the TENANT_TEMPLATE_DIRS' % (__name__, FilesystemLoader.__name__))
         for template_dir in template_dirs:
             try:
                 yield safe_join(template_dir, connection.tenant.domain_url, template_name)
@@ -112,6 +110,6 @@ class FilesystemLoader(BaseLoader):
         if tried:
             error_msg = "Tried %s" % tried
         else:
-            error_msg = "Your TEMPLATE_DIRS setting is empty. Change it to point to at least one template directory."
+            error_msg = "Your TENANT_TEMPLATE_DIRS setting is empty. Change it to point to at least one template directory."
         raise TemplateDoesNotExist(error_msg)
     load_template_source.is_usable = True
