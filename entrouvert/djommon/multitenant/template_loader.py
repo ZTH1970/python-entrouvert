@@ -12,8 +12,6 @@ from django.utils.encoding import force_bytes
 from django.utils._os import safe_join
 from django.db import connection
 
-import tenant_schemas.utils
-
 from . import app_settings
 
 class CachedLoader(BaseLoader):
