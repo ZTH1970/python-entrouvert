@@ -6,6 +6,7 @@ import tempfile
 import shutil
 import os
 import json
+import StringIO
 
 from django.conf.urls import patterns
 from django.test import TestCase, Client
@@ -29,10 +30,21 @@ def python_key(request, *args, **kwargs):
 def template(request, *args, **kwargs):
     return TemplateResponse(request, 'tenant.html')
 
+def upload(request):
+    from django.core.files.storage import default_storage
+    default_storage.save('upload', request.FILES['upload'])
+    return HttpResponse('')
+
+def download(request):
+    from django.core.files.storage import default_storage
+    return HttpResponse(default_storage.open('upload').read())
+
 urlpatterns = patterns('',
         ('^json_key/$', json_key),
         ('^python_key/$', python_key),
         ('^template/$', template),
+        ('^upload/$', upload),
+        ('^download/$', download),
 )
 
 @override_settings(
@@ -44,7 +56,8 @@ urlpatterns = patterns('',
         ),
         TEMPLATE_LOADERS = (
            'entrouvert.djommon.multitenant.template_loader.FilesystemLoader',
-        )
+        ),
+        DEFAULT_FILE_STORAGE = 'entrouvert.djommon.multitenant.storage.TenantFileSystemStorage',
 )
 class SimpleTest(TestCase):
     TENANTS = ['tenant1', 'tenant2']
@@ -65,6 +78,8 @@ class SimpleTest(TestCase):
             tenant_html = os.path.join(templates_dir, 'tenant.html')
             with file(tenant_html, 'w') as f:
                 print >>f, tenant + ' template',
+            media_dir = os.path.join(tenant_dir, 'media')
+            os.mkdir(media_dir)
 
     def tearDown(self):
         shutil.rmtree(self.tenant_base, ignore_errors=True) 
@@ -96,5 +111,18 @@ class SimpleTest(TestCase):
                         domain_url=tenant)) for tenant in self.TENANTS)
             self.assertEquals(l1, l2)
 
-
-
+    def test_storage(self):
+        from django.core.files.base import ContentFile
+        with self.tenant_settings():
+            for tenant in self.TENANTS:
+                c = Client(HTTP_HOST=tenant)
+                uploaded_file_path = os.path.join(self.tenant_base, tenant, 'media', 'upload')
+                self.assertFalse(os.path.exists(uploaded_file_path), uploaded_file_path)
+                response = c.post('/upload/', {'upload': ContentFile(tenant + ' upload', name='upload.txt')})
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(response.content, '')
+                self.assertTrue(os.path.exists(uploaded_file_path))
+                self.assertEqual(file(uploaded_file_path).read(), tenant + ' upload')
+                response = c.get('/download/')
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(response.content, tenant + ' upload')
