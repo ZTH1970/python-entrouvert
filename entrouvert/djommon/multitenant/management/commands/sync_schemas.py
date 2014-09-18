@@ -34,7 +34,7 @@ class Command(SyncCommon):
         if self.sync_public:
             self.sync_public_apps()
         if self.sync_tenant:
-            self.sync_tenant_apps(self.schema_name)
+            self.sync_tenant_apps(self.domain)
 
         # restore settings
         for model in get_models(include_auto_created=True):

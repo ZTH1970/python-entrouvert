@@ -22,7 +22,7 @@ class Command(SyncCommon):
         if self.sync_public:
             self.migrate_public_apps()
         if self.sync_tenant:
-            self.migrate_tenant_apps(self.schema_name)
+            self.migrate_tenant_apps(self.domain)
 
     def _set_managed_apps(self, included_apps, excluded_apps):
         """ while sync_schemas works by setting which apps are managed, on south we set which apps should be ignored """

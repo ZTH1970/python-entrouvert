@@ -145,10 +145,10 @@ class SyncCommon(BaseCommand):
         self.args = args
         self.options = options
 
-        if self.schema_name:
+        if self.domain:
             if self.sync_public:
                 raise CommandError("schema should only be used with the --tenant switch.")
-            elif self.schema_name == get_public_schema_name():
+            elif self.domain == get_public_schema_name():
                 self.sync_public = True
             else:
                 self.sync_tenant = True
