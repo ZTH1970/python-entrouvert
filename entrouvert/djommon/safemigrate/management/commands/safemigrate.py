@@ -1,28 +1,33 @@
 from django.core.management.base import NoArgsCommand
-from django.db import connections, router, models
-
+from django.db import connection, models
 from south.models import MigrationHistory
-from south.management.commands import syncdb, migrate
-from django.core.management.commands import syncdb as django_syncdb
+
+from django.core.management.commands.syncdb import Command as DjangoSyncdbCommand
+from south.management.commands.syncdb import Command as SouthSyncdbCommand
+from south.management.commands.migrate import Command as SouthMigrateCommand
 
 
 class Command(NoArgsCommand):
-    option_list = django_syncdb.Command.option_list
-    help = '''syncdb + migrate, with "migrate --fake app 0001" for apps with new initial migrations'''
+    option_list = DjangoSyncdbCommand.option_list
+    help = "syncdb and migrate the project, migrate '--fake app 0001' each app that has a new initial migration"
 
     def handle_noargs(self, *args, **options):
-
+        verbosity = int(options['verbosity'])
         # step 1 : syncdb, create all apps without migrations
-        syncdb.Command().execute(migrate_all=False, migrate=False, **options)
-
+        SouthSyncdbCommand().execute(migrate_all=False, migrate=False, **options)
         # step 2 : detect and "fake 0001" all installed apps that had never
         # migrated (applications in database but not in south history)
+        if verbosity > 0:
+            print
+        self.fake_if_needed(verbosity)
+        # step 3 : migrate
+        if verbosity > 0:
+            print
+        SouthMigrateCommand().execute(**options)
 
+    def fake_if_needed(self, verbosity=1):
         # detect installed models
         # (code borrowed from django syncdb command)
-        db = options.get('database')
-        connection = connections[db]
-        cursor = connection.cursor()
         tables = connection.introspection.table_names()
         def model_in_database(model):
             opts = model._meta
@@ -37,9 +42,8 @@ class Command(NoArgsCommand):
         applied_migrations = MigrationHistory.objects.filter(app_name__in=[app.app_label() for app in apps])
         applied_migrations_lookup = dict(('%s.%s' % (mi.app_name, mi.migration), mi) for mi in applied_migrations)
 
-        print
-        print 'Status after syncdb:'
-
+        if verbosity > 0:
+            print 'Status after syncdb:'
         for app in apps:
             # for each app with migrations, list already applied migrations
             applied_migrations = []
@@ -49,7 +53,6 @@ class Command(NoArgsCommand):
                     applied_migration = applied_migrations_lookup[full_name]
                     if applied_migration.applied:
                         applied_migrations.append(migration.name())
-
             # try all models in database, if there none, the application is new
             # (because south syncdb does not create any tables)
             new = True
@@ -57,7 +60,6 @@ class Command(NoArgsCommand):
                 if model_in_database(m):
                     new = False
                     break
-
             if new:
                 status = 'application-is-new'
             elif not applied_migrations:
@@ -65,12 +67,10 @@ class Command(NoArgsCommand):
             else:
                 status = 'normal'
 
-            print ' - %s: %s' % (app.app_label(), status)
-
+            if verbosity > 0:
+                print ' - %s: %s' % (app.app_label(), status)
             if status == 'migration-is-new':
-                print '   need fake migration to 0001_initial'
+                if verbosity > 0:
+                    print '   need fake migration to 0001_initial'
                 # migrate --fake gdc 0001
-                migrate.Command().execute(app=app.app_label(), target='0001', fake=True)
-
-        print
-        migrate.Command().execute(**options)
+                SouthMigrateCommand().execute(app=app.app_label(), target='0001', fake=True, verbosity=verbosity)
