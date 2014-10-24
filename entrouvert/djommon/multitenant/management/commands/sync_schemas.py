@@ -74,7 +74,7 @@ class Command(SyncCommon):
                 self._sync_tenant(tenant)
 
     def sync_public_apps(self):
+        self._notice("=== Running syncdb for schema public")
         apps = self.shared_apps or self.installed_apps
         self._set_managed_apps(apps)
         SyncdbCommand().execute(**self.options)
-        self._notice("=== Running syncdb for schema public")
