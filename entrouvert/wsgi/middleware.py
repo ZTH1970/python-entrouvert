@@ -29,6 +29,8 @@ class VersionMiddleware(object):
             'compte-meyzieu',
             'compte-agglo-montpellier',
             'compte-orleans',
+            'hobo',
+            'django-cmsplugin-blurp',
     ]
     VERSION = 1
 
