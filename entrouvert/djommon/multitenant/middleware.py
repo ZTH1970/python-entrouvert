@@ -167,7 +167,7 @@ class DictAdapter(dict):
             raise KeyError
 
 
-class PythonSettingsMiddleware(JSONSettingsMiddleware):
+class PythonSettingsMiddleware(FileBasedTenantSettingBaseMiddleware):
     '''Load settings from a file whose path is given by:
 
             os.path.join(settings.TENANT_BASE % schema_name, 'settings.py')
