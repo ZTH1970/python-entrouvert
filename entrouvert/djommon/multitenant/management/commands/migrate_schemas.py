@@ -1,91 +1,74 @@
-# this file derive from django-tenant-schemas
-#   Author: Bernardo Pires Carneiro
-#   Email: carneiro.be@gmail.com
-#   License: MIT license
-#   Home-page: http://github.com/bcarneiro/django-tenant-schemas
-from django.conf import settings
+import django
+from optparse import NO_DEFAULT
+
+if django.VERSION >= (1, 7, 0):
+    from django.core.management.commands.migrate import Command as MigrateCommand
+    from django.db.migrations.recorder import MigrationRecorder
 from django.db import connection
-from south import migration
-from south.migration.base import Migrations
-from south.management.commands.migrate import Command as MigrateCommand
-from entrouvert.djommon.multitenant.middleware import TenantMiddleware
+from django.conf import settings
+
+from tenant_schemas.utils import get_public_schema_name
+from entrouvert.djommon.multitenant.middleware import TenantMiddleware, TenantNotFound
 from entrouvert.djommon.multitenant.management.commands import SyncCommon
 
 
-class Command(SyncCommon):
-    help = "Migrate schemas with South"
-    option_list = MigrateCommand.option_list + SyncCommon.option_list
+class MigrateSchemasCommand(SyncCommon):
+    help = "Updates database schema. Manages both apps with migrations and those without."
+
+    def run_from_argv(self, argv):
+        """
+        Changes the option_list to use the options from the wrapped command.
+        Adds schema parameter to specify which schema will be used when
+        executing the wrapped command.
+        """
+        self.option_list += MigrateCommand.option_list
+        super(MigrateSchemasCommand, self).run_from_argv(argv)
 
     def handle(self, *args, **options):
-        super(Command, self).handle(*args, **options)
+        super(MigrateSchemasCommand, self).handle(*args, **options)
+        self.PUBLIC_SCHEMA_NAME = get_public_schema_name()
+
+        if self.sync_public and not self.domain:
+            self.domain = self.PUBLIC_SCHEMA_NAME
 
         if self.sync_public:
-            self.migrate_public_apps()
+            self.run_migrations(self.domain, settings.SHARED_APPS)
         if self.sync_tenant:
-            self.migrate_tenant_apps(self.domain)
+            if self.domain and self.domain != self.PUBLIC_SCHEMA_NAME:
+                try:
+                    tenant = TenantMiddleware.get_tenant_by_hostname(self.domain)
+                except TenantNotFound:
+                    raise RuntimeError('Schema "{}" does not exist'.format(
+                        self.domain))
+                else:
+                    self.run_migrations(tenant.schema_name, settings.TENANT_APPS)
+            else:
+                all_tenants = TenantMiddleware.get_tenants()
+                for tenant in all_tenants:
+                    self.run_migrations(tenant.schema_name, settings.TENANT_APPS)
 
-    def _set_managed_apps(self, included_apps, excluded_apps):
-        """ while sync_schemas works by setting which apps are managed, on south we set which apps should be ignored """
-        ignored_apps = []
-        if excluded_apps:
-            for item in excluded_apps:
-                if item not in included_apps:
-                    ignored_apps.append(item)
+    def run_migrations(self, schema_name, included_apps):
+        self._notice("=== Running migrate for schema %s" % schema_name)
+        connection.set_schema(schema_name)
+        command = MigrateCommand()
 
-        for app in ignored_apps:
-            app_label = app.split('.')[-1]
-            settings.SOUTH_MIGRATION_MODULES[app_label] = 'ignore'
+        defaults = {}
+        for opt in MigrateCommand.option_list:
+            if opt.dest in self.options:
+                defaults[opt.dest] = self.options[opt.dest]
+            elif opt.default is NO_DEFAULT:
+                defaults[opt.dest] = None
+            else:
+                defaults[opt.dest] = opt.default
 
-    def _save_south_settings(self):
-        self._old_south_modules = None
-        if hasattr(settings, "SOUTH_MIGRATION_MODULES") and settings.SOUTH_MIGRATION_MODULES is not None:
-            self._old_south_modules = settings.SOUTH_MIGRATION_MODULES.copy()
-        else:
-            settings.SOUTH_MIGRATION_MODULES = dict()
+        command.execute(*self.args, **defaults)
+        connection.set_schema_to_public()
 
-    def _restore_south_settings(self):
-        settings.SOUTH_MIGRATION_MODULES = self._old_south_modules
+    def _notice(self, output):
+        self.stdout.write(self.style.NOTICE(output))
 
-    def _clear_south_cache(self):
-        for mig in list(migration.all_migrations()):
-            delattr(mig._application, "migrations")
-        Migrations._clear_cache()
 
-    def _migrate_schema(self, tenant):
-        connection.set_tenant(tenant, include_public=False)
-        MigrateCommand().execute(*self.args, **self.options)
-
-    def migrate_tenant_apps(self, schema_name=None):
-        self._save_south_settings()
-
-        apps = self.tenant_apps or self.installed_apps
-        self._set_managed_apps(included_apps=apps, excluded_apps=self.shared_apps)
-
-        if schema_name:
-            self._notice("=== Running migrate for schema: %s" % schema_name)
-            connection.set_schema_to_public()
-            tenant = TenantMiddleware.get_tenant_by_hostname(schema_name)
-            self._migrate_schema(tenant)
-        else:
-            all_tenants = TenantMiddleware.get_tenants()
-            if not all_tenants:
-                self._notice("No tenants found")
-
-            for tenant in all_tenants:
-                Migrations._dependencies_done = False  # very important, the dependencies need to be purged from cache
-                self._notice("=== Running migrate for schema %s" % tenant.schema_name)
-                self._migrate_schema(tenant)
-
-        self._restore_south_settings()
-
-    def migrate_public_apps(self):
-        self._save_south_settings()
-
-        apps = self.shared_apps or self.installed_apps
-        self._set_managed_apps(included_apps=apps, excluded_apps=self.tenant_apps)
-
-        self._notice("=== Running migrate for schema public")
-        MigrateCommand().execute(*self.args, **self.options)
-
-        self._clear_south_cache()
-        self._restore_south_settings()
+if django.VERSION >= (1, 7, 0):
+    Command = MigrateSchemasCommand
+else:
+    from .legacy.migrate_schemas import Command

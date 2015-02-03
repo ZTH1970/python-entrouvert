@@ -3,19 +3,22 @@
 #   Email: carneiro.be@gmail.com
 #   License: MIT license
 #   Home-page: http://github.com/bcarneiro/django-tenant-schemas
-from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
-from django.db.models import get_apps, get_models
-if "south" in settings.INSTALLED_APPS:
-    from south.management.commands.syncdb import Command as SyncdbCommand
-else:
-    from django.core.management.commands.syncdb import Command as SyncdbCommand
-from django.db import connection
-from entrouvert.djommon.multitenant.middleware import TenantMiddleware
+import django
+
+if django.VERSION < (1, 7, 0):
+    from django.conf import settings
+    from django.contrib.contenttypes.models import ContentType
+    from django.db.models import get_apps, get_models
+    if "south" in settings.INSTALLED_APPS:
+        from south.management.commands.syncdb import Command as SyncdbCommand
+    else:
+        from django.core.management.commands.syncdb import Command as SyncdbCommand
+    from django.db import connection
+    from entrouvert.djommon.multitenant.middleware import TenantMiddleware
 from entrouvert.djommon.multitenant.management.commands import SyncCommon
 
 
-class Command(SyncCommon):
+class SyncSchemasCommand(SyncCommon):
     help = "Sync schemas based on TENANT_APPS and SHARED_APPS settings"
     option_list = SyncdbCommand.option_list + SyncCommon.option_list
 
@@ -78,3 +81,9 @@ class Command(SyncCommon):
         apps = self.shared_apps or self.installed_apps
         self._set_managed_apps(apps)
         SyncdbCommand().execute(**self.options)
+
+if django.VERSION < (1, 7, 0):
+    Command = SyncSchemasCommand
+else:
+    raise RuntimeError('Django 1.7: use migrate_schemas')
+
