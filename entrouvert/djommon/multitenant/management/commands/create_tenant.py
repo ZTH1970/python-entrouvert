@@ -13,17 +13,14 @@ class Command(BaseCommand):
         if not args:
             raise CommandError("you must give at least one tenant hostname")
 
-        for arg in args:
-            hostname = arg
-            tenant_name = TenantMiddleware.hostname2schema(hostname)
+        for hostname in args:
             try:
                 tenant_base = TenantMiddleware.base()
             except AttributeError:
                 raise CommandError("you must configure TENANT_BASE in your settings")
             if not tenant_base:
                 raise CommandError("you must set a value to TENANT_BASE in your settings")
-            tenant_dir = os.path.join(tenant_base,
-                    tenant_name)
+            tenant_dir = os.path.join(tenant_base, hostname)
             if not os.path.exists(tenant_dir):
                 os.mkdir(tenant_dir, 0755)
             for folder in ('media', 'static', 'templates'):
@@ -38,4 +35,3 @@ class Command(BaseCommand):
                     + self.style.SQL_TABLE(tenant.schema_name)
             if not tenant.create_schema(check_if_exists=True):
                 print self.style.ERROR(' Nothing to do: %r already exist' % hostname)
-

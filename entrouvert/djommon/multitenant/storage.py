@@ -14,7 +14,7 @@ class TenantFileSystemStorage(FileSystemStorage):
     '''Lookup files first in $TENANT_BASE/<tenant.schema>/media/ then in default location'''
     def path(self, name):
         if connection.tenant:
-            location = safe_join(settings.TENANT_BASE, connection.tenant.schema_name, 'media')
+            location = safe_join(settings.TENANT_BASE, connection.tenant.domain_url, 'media')
         else:
             location = self.location
         try:

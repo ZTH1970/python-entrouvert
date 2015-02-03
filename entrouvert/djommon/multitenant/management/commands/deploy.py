@@ -22,8 +22,7 @@ class Command(BaseCommand):
 
         call_command('create_tenant', hostname)
 
-        tenant_name = TenantMiddleware.hostname2schema(hostname)
-        tenant = TenantMiddleware.get_tenant_by_hostname(tenant_name)
+        tenant = TenantMiddleware.get_tenant_by_hostname(hostname)
         with tenant_context(tenant):
             self.deploy_tenant(environment, service, options)
 

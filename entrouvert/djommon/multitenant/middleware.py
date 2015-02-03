@@ -33,10 +33,9 @@ class TenantMiddleware(object):
     @classmethod
     def get_tenant_by_hostname(cls, hostname):
         '''Retrieve a tenant object for this hostname'''
-        schema = cls.hostname2schema(hostname)
-        p = os.path.join(cls.base(), schema)
-        if not os.path.exists(p):
+        if not os.path.exists(os.path.join(cls.base(), hostname)):
             raise TenantNotFound
+        schema = cls.hostname2schema(hostname)
         return get_tenant_model()(schema_name=schema, domain_url=hostname)
 
     @classmethod
@@ -118,7 +117,7 @@ class FileBasedTenantSettingBaseMiddleware(TenantSettingBaseMiddleware):
     FILENAME = None
 
     def load_tenant_settings(self, wrapped, tenant, tenant_settings, last_time):
-        path = os.path.join(settings.TENANT_BASE, tenant.schema_name, self.FILENAME)
+        path = os.path.join(settings.TENANT_BASE, tenant.domain_url, self.FILENAME)
         try:
             new_time = os.stat(path).st_mtime
         except OSError:
