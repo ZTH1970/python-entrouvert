@@ -4,25 +4,29 @@
 #   License: MIT license
 #   Home-page: http://github.com/bcarneiro/django-tenant-schemas
 import django
+from django.core.management.base import CommandError
 
-if django.VERSION < (1, 7, 0):
-    from django.conf import settings
-    from django.contrib.contenttypes.models import ContentType
-    from django.db.models import get_apps, get_models
-    if "south" in settings.INSTALLED_APPS:
-        from south.management.commands.syncdb import Command as SyncdbCommand
-    else:
-        from django.core.management.commands.syncdb import Command as SyncdbCommand
-    from django.db import connection
-    from entrouvert.djommon.multitenant.middleware import TenantMiddleware
+from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
+from django.db.models import get_apps, get_models
+if 'south' in settings.INSTALLED_APPS:
+    from south.management.commands.syncdb import Command as SyncdbCommand
+else:
+    from django.core.management.commands.syncdb import Command as SyncdbCommand
+from django.db import connection
+from entrouvert.djommon.multitenant.middleware import TenantMiddleware
 from entrouvert.djommon.multitenant.management.commands import SyncCommon
 
 
-class SyncSchemasCommand(SyncCommon):
+class Command(SyncCommon):
     help = "Sync schemas based on TENANT_APPS and SHARED_APPS settings"
     option_list = SyncdbCommand.option_list + SyncCommon.option_list
 
     def handle(self, *args, **options):
+        if django.VERSION >= (1, 7, 0):
+            raise CommandError('This command is only meant to be used for 1.6'
+                               ' and older version of django. For 1.7, use'
+                               ' `migrate_schemas` instead.')
         super(Command, self).handle(*args, **options)
 
         if "south" in settings.INSTALLED_APPS:
@@ -81,9 +85,3 @@ class SyncSchemasCommand(SyncCommon):
         apps = self.shared_apps or self.installed_apps
         self._set_managed_apps(apps)
         SyncdbCommand().execute(**self.options)
-
-if django.VERSION < (1, 7, 0):
-    Command = SyncSchemasCommand
-else:
-    raise RuntimeError('Django 1.7: use migrate_schemas')
-
