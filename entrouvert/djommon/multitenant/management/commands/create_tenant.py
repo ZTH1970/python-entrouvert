@@ -33,5 +33,4 @@ class Command(BaseCommand):
                 print
                 print self.style.NOTICE("=== Creating schema ") \
                     + self.style.SQL_TABLE(tenant.schema_name)
-            if not tenant.create_schema(check_if_exists=True):
-                print self.style.ERROR(' Nothing to do: %r already exist' % hostname)
+            tenant.create_schema(check_if_exists=True)
