@@ -28,20 +28,14 @@ class MigrateSchemasCommand(SyncCommon):
         super(MigrateSchemasCommand, self).handle(*args, **options)
         self.PUBLIC_SCHEMA_NAME = get_public_schema_name()
 
-        if self.sync_public and not self.domain:
-            self.domain = self.PUBLIC_SCHEMA_NAME
+        if self.sync_public and not self.schema_name:
+            self.schema_name = self.PUBLIC_SCHEMA_NAME
 
         if self.sync_public:
-            self.run_migrations(self.domain, settings.SHARED_APPS)
+            self.run_migrations(self.schema_name, settings.SHARED_APPS)
         if self.sync_tenant:
-            if self.domain and self.domain != self.PUBLIC_SCHEMA_NAME:
-                try:
-                    tenant = TenantMiddleware.get_tenant_by_hostname(self.domain)
-                except TenantNotFound:
-                    raise RuntimeError('Schema "{}" does not exist'.format(
-                        self.domain))
-                else:
-                    self.run_migrations(tenant.schema_name, settings.TENANT_APPS)
+            if self.schema_name and self.schema_name != self.PUBLIC_SCHEMA_NAME:
+                self.run_migrations(self.schema_name, settings.TENANT_APPS)
             else:
                 all_tenants = TenantMiddleware.get_tenants()
                 for tenant in all_tenants:

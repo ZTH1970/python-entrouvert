@@ -94,19 +94,19 @@ To learn how create a tenant, see:
 https://django-tenant-schemas.readthedocs.org/en/latest/use.html#creating-a-tenant""")
 
         if options.get('domain'):
-            tenant_schema = options['domain']
+            domain = options['domain']
         else:
             while True:
-                tenant_schema = input("Enter Tenant Domain ('?' to list schemas): ")
-                if tenant_schema == '?':
-                    print('\n'.join(["%s - %s" % (t.schema_name, t.domain_url,) for t in all_tenants]))
+                domain = input("Enter Tenant Domain ('?' to list): ")
+                if domain == '?':
+                    print('\n'.join(["%s (schema %s)" % (t.domain_url, t.schema_name) for t in all_tenants]))
                 else:
                     break
 
-        if tenant_schema not in [t.schema_name for t in all_tenants]:
-            raise CommandError("Invalid tenant schema, '%s'" % (tenant_schema,))
+        if domain not in [t.domain_url for t in all_tenants]:
+            raise CommandError("Invalid tenant, '%s'" % (domain,))
 
-        return TenantMiddleware.get_tenant_by_hostname(tenant_schema)
+        return TenantMiddleware.get_tenant_by_hostname(domain)
 
 
 class TenantWrappedCommand(InteractiveTenantOption, BaseCommand):
@@ -146,9 +146,14 @@ class SyncCommon(BaseCommand):
         self.options = options
 
         if self.domain:
+            self.schema_name = TenantMiddleware.hostname2schema(domain)
+        else:
+            self.schema_name = options.get('schema_name')
+
+        if self.schema_name:
             if self.sync_public:
-                raise CommandError("schema should only be used with the --tenant switch.")
-            elif self.domain == get_public_schema_name():
+                raise CommandError("domain should only be used with the --tenant switch.")
+            elif self.schema_name == get_public_schema_name():
                 self.sync_public = True
             else:
                 self.sync_tenant = True
