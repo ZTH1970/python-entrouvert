@@ -3,13 +3,17 @@
 #   Email: carneiro.be@gmail.com
 #   License: MIT license
 #   Home-page: http://github.com/bcarneiro/django-tenant-schemas
+import django
 from django.conf import settings
 from django.core.management.base import CommandError, BaseCommand
-try:
-    from south.management.commands.migrate import Command as MigrateCommand
-except ImportError:
-    MigrateCommand = BaseCommand
 
+if django.VERSION < (1, 7, 0):
+    try:
+        from south.management.commands.migrate import Command as MigrateCommand
+    except ImportError:
+        MigrateCommand = BaseCommand
+else:
+    MigrateCommand = BaseCommand
 
 class Command(MigrateCommand):
 
