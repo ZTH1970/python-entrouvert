@@ -3,7 +3,7 @@ from entrouvert.djommon.multitenant.middleware import TenantMiddleware
 from django.db import connection
 
 class Command(BaseCommand):
-    help = "Create schemas"
+    help = "Create schemas for all declared tenants"
 
     def handle(self, *args, **options):
         verbosity = int(options.get('verbosity'))
