@@ -31,10 +31,6 @@ class Command(InteractiveTenantOption, BaseCommand):
         else:
             klass = load_command_class(app_name, argv[2])
 
-        self.option_list = klass.option_list + (
-            make_option("-d", "--domain", dest="domain", help="specify tenant schema"),
-        )
-
         super(Command, self).run_from_argv(argv)
 
     def handle(self, *args, **options):
