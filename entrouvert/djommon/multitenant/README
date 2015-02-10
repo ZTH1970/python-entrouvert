@@ -85,9 +85,9 @@ Usage
 -----
 
 Create a tenant:
-   manange.py create_tenant www.example.net
+   manage.py create_tenant www.example.net
 Migration of all tenants:
-   manange.py migrate_schemas
+   manage.py migrate_schemas
 
 
 Tenants are created in TENANT_BASE directory, for example :
