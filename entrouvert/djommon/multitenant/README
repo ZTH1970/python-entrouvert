@@ -88,7 +88,8 @@ Create a tenant:
    manage.py create_tenant www.example.net
 Migration of all tenants:
    manage.py migrate_schemas
-
+Add a super user to tenant:
+   manage.py tenant_command createsuperuser --domain www.example.net
 
 Tenants are created in TENANT_BASE directory, for example :
     /var/lib/project/tenants/www.example.net/
